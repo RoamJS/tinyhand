@@ -1,39 +1,43 @@
+import React from "react";
+import ReactDOM from "react-dom";
 import runExtension from "roamjs-components/util/runExtension";
-import { render as renderToast } from "roamjs-components/components/Toast";
+import { TinyHand } from "~/components/TinyHand";
+import { type PointerStyle } from "~/pointerStyles";
+
+const COMMAND = "TinyHand: Start pointing";
 
 export default runExtension(async ({ extensionAPI }) => {
-  if (process.env.NODE_ENV === "development") {
-    renderToast({
-      id: "extension-base-loaded",
-      content: "Successfully loaded {Extension Name}",
-      intent: "success",
-      timeout: 500,
-    });
-  }
+  let mount: HTMLDivElement | undefined;
+  let pointerStyle: PointerStyle = "lavender";
+  let sound = false;
 
-  // extensionAPI.settings.panel.create({
-  //   tabTitle: "Extension",
-  //   settings: [
-  //     {
-  //       id: "enabled",
-  //       name: "Enable",
-  //       description: "Turn the extension on or off",
-  //       action: { type: "switch" },
-  //     },
-  //   ],
-  // });
-
-  // Add your extension logic here.
-  // Add components to /components
-  // Add utils to /utils
-  // Add types to /types
-  // Add styles to /styles
-  // keep index.ts simple, clean, easy to read and focused on the extension logic.
-  // Use roamjs-components: dom/*, queries/*, writes/*, util/*, components/*
-
-  return {
-    unload: () => {
-      // Clean up observers, listeners, command palette, etc.
-    },
+  const close = (): void => {
+    if (!mount) return;
+    ReactDOM.unmountComponentAtNode(mount);
+    mount.remove();
+    mount = undefined;
   };
+
+  const open = (): void => {
+    if (mount) return;
+    mount = document.createElement("div");
+    document.body.append(mount);
+    ReactDOM.render(
+      React.createElement(TinyHand, {
+        initialStyle: pointerStyle,
+        initialSound: sound,
+        onStyleChange: (style) => {
+          pointerStyle = style;
+        },
+        onSoundChange: (enabled) => {
+          sound = enabled;
+        },
+        onClose: close,
+      }),
+      mount,
+    );
+  };
+
+  extensionAPI.ui.commandPalette.addCommand({ label: COMMAND, callback: open });
+  return { unload: close };
 });

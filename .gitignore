@@ -8,3 +8,4 @@ extension.js.LICENSE.txt
 
 local/
 .DS_Store
+extension.css

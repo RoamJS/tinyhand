@@ -2,4 +2,4 @@
 
 ## Unreleased
 
-- Updated the template to use `roamjs-components` 0.91.0 and preserve Roam's native React hook.
+- Added TinyHand for Roam. Point with a hand or laser dot, tap to highlight a spot, and draw freehand strokes and arrows over your graph.
