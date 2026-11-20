@@ -2,7 +2,7 @@
   "name": "tinyhand",
   "version": "0.1.0",
   "description": "Point, tap, and draw over your Roam graph with TinyHand.",
-  "main": "index.js",
+  "main": "extension.js",
   "scripts": {
     "postinstall": "patch-package",
     "start": "samepage dev",

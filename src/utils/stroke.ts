@@ -11,12 +11,15 @@ export const arrowhead = (
   if (!end || !start) return;
 
   const size = 14;
+  const distanceFromEnd = (point: Point): number =>
+    Math.hypot(end.x - point.x, end.y - point.y);
   const back =
-    points.findLast(
-      (point) => Math.hypot(end.x - point.x, end.y - point.y) >= size * 1.2,
-    ) ?? start;
-  const length = Math.hypot(end.x - back.x, end.y - back.y);
-  if (length < 1) return;
+    points.findLast((point) => distanceFromEnd(point) >= size * 1.2) ??
+    (distanceFromEnd(start) >= 1
+      ? start
+      : points.findLast((point) => distanceFromEnd(point) >= 1));
+  if (!back) return;
+  const length = distanceFromEnd(back);
 
   const angle = Math.atan2(back.y - end.y, back.x - end.x);
   const wingLength = Math.min(size, length * 0.8);

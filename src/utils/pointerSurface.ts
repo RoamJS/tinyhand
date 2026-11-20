@@ -1,15 +1,12 @@
-import {
-  handArtwork,
-  pointerStyles,
-  tapSound,
-  type PointerStyle,
-} from "~/pointerStyles";
+import artwork from "~/assets/tinyhand.json";
+import { pointerStyles, type PointerStyle } from "~/preferences";
 import { drawHand, drawLaser, drawStroke, type Stroke } from "./draw";
 import { movedToDraw, type Point } from "./stroke";
 
 export type PointerOptions = { style: PointerStyle; sound: boolean };
 
 type PointerSurface = {
+  undo: () => void;
   clear: () => void;
   update: (options: PointerOptions) => void;
   dispose: () => void;
@@ -33,10 +30,12 @@ export const createPointerSurface = ({
   ink,
   surface,
   initialOptions,
+  onStrokeCountChange,
 }: {
   ink: HTMLCanvasElement;
   surface: HTMLCanvasElement;
   initialOptions: PointerOptions;
+  onStrokeCountChange: (count: number) => void;
 }): PointerSurface => {
   const inkContext = ink.getContext("2d");
   const context = surface.getContext("2d");
@@ -44,7 +43,8 @@ export const createPointerSurface = ({
 
   const events = new AbortController();
   const { signal } = events;
-  const audio = new Audio(tapSound);
+  const audio = new Audio(artwork.sound);
+  const handArtwork = artwork.hands;
   const hands = new Map<keyof typeof handArtwork, HTMLImageElement>();
   const strokes: Stroke[] = [];
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -120,6 +120,11 @@ export const createPointerSurface = ({
     scheduleRender();
   };
 
+  const redrawInk = (): void => {
+    inkContext.clearRect(0, 0, width, height);
+    strokes.forEach((stroke) => drawStroke(inkContext, stroke));
+  };
+
   const resize = (): void => {
     width = surface.clientWidth;
     height = surface.clientHeight;
@@ -130,7 +135,7 @@ export const createPointerSurface = ({
     }
     inkContext.setTransform(ratio, 0, 0, ratio, 0, 0);
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    strokes.forEach((stroke) => drawStroke(inkContext, stroke));
+    redrawInk();
     scheduleRender();
   };
 
@@ -148,6 +153,17 @@ export const createPointerSurface = ({
     strokes.length = 0;
     pulse = undefined;
     inkContext.clearRect(0, 0, width, height);
+    onStrokeCountChange(0);
+  };
+
+  const undo = (): void => {
+    if (gesture) {
+      endGesture();
+      return;
+    }
+    if (!strokes.pop()) return;
+    redrawInk();
+    onStrokeCountChange(strokes.length);
   };
 
   const trackGesture = (event: PointerEvent): void => {
@@ -170,6 +186,7 @@ export const createPointerSurface = ({
     if (gesture.drawing) {
       strokes.push(stroke);
       drawStroke(inkContext, stroke);
+      onStrokeCountChange(strokes.length);
     } else {
       pulse = {
         position: point,
@@ -284,6 +301,7 @@ export const createPointerSurface = ({
 
   return {
     clear,
+    undo,
     update,
     dispose: () => {
       events.abort();

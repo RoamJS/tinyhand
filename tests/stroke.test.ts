@@ -39,3 +39,16 @@ test("scales down short arrows and skips degenerate paths", () => {
   ]);
   assert.ok(head?.every((point) => point.x > 0 && point.x < 4));
 });
+
+test("gives a small closed arrow the direction of its last segment", () => {
+  const head = arrowhead([
+    { x: 0, y: 0 },
+    { x: 10, y: 0 },
+    { x: 10, y: 10 },
+    { x: 0, y: 10 },
+    { x: 0, y: 0 },
+  ]);
+  assert.ok(head);
+  assert.ok(head.every((point) => point.y > 0));
+  assert.ok(head[0].x * head[1].x < 0);
+});
