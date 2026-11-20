@@ -150,7 +150,7 @@ export const createPointerSurface = ({
     inkContext.clearRect(0, 0, width, height);
   };
 
-  const appendPoint = (event: PointerEvent): void => {
+  const trackGesture = (event: PointerEvent): void => {
     if (!gesture) return;
     const point = eventPoint(event);
     const { stroke, start } = gesture;
@@ -163,6 +163,25 @@ export const createPointerSurface = ({
     ) {
       stroke.points.push(point);
     }
+
+    // Pointer Events can report a button release as a move when another button is held.
+    if (event.buttons & 1) return;
+    pointer = event.pointerType === "touch" ? undefined : point;
+    if (gesture.drawing) {
+      strokes.push(stroke);
+      drawStroke(inkContext, stroke);
+    } else {
+      pulse = {
+        position: point,
+        start: performance.now(),
+        color: stroke.color,
+      };
+      if (options.sound) {
+        audio.currentTime = 0;
+        void audio.play().catch(() => {});
+      }
+    }
+    endGesture();
   };
 
   surface.addEventListener(
@@ -197,7 +216,7 @@ export const createPointerSurface = ({
       )
         return;
       pointer = eventPoint(event);
-      appendPoint(event);
+      trackGesture(event);
       scheduleRender();
     },
     { signal },
@@ -207,22 +226,7 @@ export const createPointerSurface = ({
     "pointerup",
     (event) => {
       event.stopPropagation();
-      if (gesture?.pointerId !== event.pointerId || event.button !== 0) return;
-      appendPoint(event);
-      const { drawing, stroke } = gesture;
-      const position = eventPoint(event);
-      pointer = event.pointerType === "touch" ? undefined : position;
-      if (drawing) {
-        strokes.push(stroke);
-        drawStroke(inkContext, stroke);
-      } else {
-        pulse = { position, start: performance.now(), color: stroke.color };
-        if (options.sound) {
-          audio.currentTime = 0;
-          void audio.play().catch(() => {});
-        }
-      }
-      endGesture();
+      if (gesture?.pointerId === event.pointerId) trackGesture(event);
     },
     { signal },
   );
