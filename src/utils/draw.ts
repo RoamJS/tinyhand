@@ -4,17 +4,20 @@ export type Stroke = {
   color: string;
   points: Point[];
   arrow: boolean;
+  erase?: boolean;
 };
 
 export const drawStroke = (
   ctx: CanvasRenderingContext2D,
-  { color, points, arrow }: Stroke,
+  { color, points, arrow, erase }: Stroke,
 ): void => {
   const first = points[0];
   const end = points.at(-1);
   if (!first || !end) return;
 
-  ctx.lineWidth = 4;
+  ctx.save();
+  ctx.globalCompositeOperation = erase ? "destination-out" : "source-over";
+  ctx.lineWidth = erase ? 24 : 4;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.strokeStyle = color;
@@ -31,6 +34,7 @@ export const drawStroke = (
     );
   }
   ctx.lineTo(end.x, end.y);
+  if (erase && points.length === 1) ctx.lineTo(end.x + 0.01, end.y);
 
   const head = arrow ? arrowhead(points) : undefined;
   if (head) {
@@ -39,6 +43,7 @@ export const drawStroke = (
     ctx.lineTo(head[1].x, head[1].y);
   }
   ctx.stroke();
+  ctx.restore();
 };
 
 type Hand = {

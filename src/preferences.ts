@@ -9,10 +9,31 @@ export const pointerStyles = {
 
 export type PointerStyle = keyof typeof pointerStyles;
 
+export const soundNames = {
+  blip: "Blip",
+  boop: "Boop",
+  chirp: "Chirp",
+  clack: "Clack",
+  click: "Click",
+  coin: "Coin",
+  pew: "Pew",
+  pop: "Pop",
+  quack: "Quack",
+  snap: "Snap",
+  squeak: "Squeak",
+  thock: "Thock",
+  tock: "Tock",
+  typewriter: "Typewriter",
+  wood: "Wood block",
+} as const;
+export type SoundChoice = keyof typeof soundNames;
+
 type SettingsStorage = Pick<Storage, "getItem" | "setItem">;
 type Preferences = {
   style: PointerStyle;
   sound: boolean;
+  choice: SoundChoice;
+  setChoice: (choice: SoundChoice) => void;
   setStyle: (style: PointerStyle) => void;
   setSound: (sound: boolean) => void;
 };
@@ -32,6 +53,11 @@ export const createPreferences = (
   const preferences: Preferences = {
     style: "lavender",
     sound: false,
+    choice: "pop",
+    setChoice: (choice) => {
+      preferences.choice = choice;
+      save("roamjs:tinyhand:sound-choice", choice);
+    },
     setStyle: (style) => {
       preferences.style = style;
       save(styleKey, style);
@@ -47,6 +73,9 @@ export const createPreferences = (
     if (style && Object.hasOwn(pointerStyles, style)) {
       preferences.style = style as PointerStyle;
     }
+    const choice = store.getItem("roamjs:tinyhand:sound-choice");
+    if (choice && Object.hasOwn(soundNames, choice))
+      preferences.choice = choice as SoundChoice;
     preferences.sound = store.getItem(soundKey) === "true";
   } catch {
     // Storage can be unavailable before the presenter has chosen any settings.

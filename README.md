@@ -10,19 +10,21 @@
 
 ## Features
 
-Open Roam’s command palette and select **TinyHand: Start pointing**. You can assign it a shortcut in Roam’s Hotkeys settings.
+Open Roam’s command palette and select **TinyHand: Toggle pointing**. Run it again to stop. **TinyHand: Toggle toolbar** hides or shows the controls without clearing ink. You can assign either command a shortcut in Roam’s Hotkeys settings.
 
 - **Point and tap.** Choose a hand or the laser dot. Move your pointer to aim and click to highlight a spot.
-- **Draw and add arrows.** Drag to draw. Hold **Cmd** on macOS or **Ctrl** on Windows and Linux while dragging to add an arrowhead.
-- **Toggle tap sound.** Use the speaker control to turn tap sound on or off. It starts muted. TinyHand remembers your pointer and sound choices in this browser.
+- **Draw and add arrows.** Drag to draw. Hold **Cmd** on macOS or **Ctrl** on Windows and Linux while dragging to add an arrowhead. Open **Gesture guide** for shortcuts.
+- **Choose a tap sound.** Use the speaker control to select one of 15 original sounds or **Off** (the default). TinyHand remembers your pointer and sound choices in this browser.
 - **Correct a mark.** Use **Undo** or **Cmd/Ctrl+Z** to remove the last mark. Choose **Clear** to erase all the ink and keep pointing.
 - **Return to Roam.** Press **Escape** or choose **Exit** to clear the overlay and resume opening links, scrolling, and editing.
+
+Right-click or right-drag to erase ink. Hold **Alt** (Option on Mac) to click through to Roam.
 
 While pointing, you can tap a link or underline a block without opening it. Each presentation starts with a blank overlay.
 
 ## Credit
 
-TinyHand for Roam is based on [TinyHand for macOS](https://github.com/nilbuild/tinyhand) by Kamran Ahmed (nilbuild).
+TinyHand for Roam is based on [TinyHand for macOS](https://github.com/nilbuild/tinyhand) by Kamran Ahmed (nilbuild). The five illustrated pointers and all 15 tap sounds are adapted from the [MIT-licensed original assets](https://github.com/nilbuild/tinyhand/tree/da98f98d529971297487b0ec6ef07dc549555686/assets).
 
 ## License
 

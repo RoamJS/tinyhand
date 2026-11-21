@@ -5,12 +5,16 @@ import runExtension from "roamjs-components/util/runExtension";
 import { TinyHand } from "~/components/TinyHand";
 import { createPreferences } from "~/preferences";
 
-const COMMAND = "TinyHand: Start pointing";
+const POINTING = "TinyHand: Toggle pointing";
+const TOOLBAR = "TinyHand: Toggle toolbar";
 
 export default runExtension(async ({ extensionAPI }) => {
   let mount: HTMLDivElement | undefined;
   let active = true;
   const preferences = createPreferences();
+
+  let toolbarVisible = true;
+  let initial = { ...preferences };
 
   const close = (): void => {
     if (!mount) return;
@@ -19,14 +23,15 @@ export default runExtension(async ({ extensionAPI }) => {
     mount = undefined;
   };
 
-  const open = (): void => {
-    if (!active || mount) return;
-    mount = document.createElement("div");
-    document.body.append(mount);
+  const render = (): void => {
+    if (!mount) return;
     ReactDOM.render(
       React.createElement(TinyHand, {
-        initialStyle: preferences.style,
-        initialSound: preferences.sound,
+        toolbarVisible,
+        initialStyle: initial.style,
+        initialSound: initial.sound,
+        initialChoice: initial.choice,
+        onChoiceChange: preferences.setChoice,
         onStyleChange: preferences.setStyle,
         onSoundChange: preferences.setSound,
         onClose: close,
@@ -38,8 +43,23 @@ export default runExtension(async ({ extensionAPI }) => {
   const registerCommand = async (): Promise<void> => {
     try {
       await extensionAPI.ui.commandPalette.addCommand({
-        label: COMMAND,
-        callback: open,
+        label: POINTING,
+        callback: () => {
+          if (!active) return;
+          if (mount) return close();
+          initial = { ...preferences };
+          mount = document.createElement("div");
+          document.body.append(mount);
+          render();
+        },
+      });
+      if (!active) return;
+      await extensionAPI.ui.commandPalette.addCommand({
+        label: TOOLBAR,
+        callback: () => {
+          toolbarVisible = !toolbarVisible;
+          render();
+        },
       });
     } catch (error) {
       if (!active) return;

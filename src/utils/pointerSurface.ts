@@ -1,9 +1,17 @@
 import artwork from "~/assets/tinyhand.json";
-import { pointerStyles, type PointerStyle } from "~/preferences";
+import {
+  pointerStyles,
+  type PointerStyle,
+  type SoundChoice,
+} from "~/preferences";
 import { drawHand, drawLaser, drawStroke, type Stroke } from "./draw";
 import { movedToDraw, type Point } from "./stroke";
 
-export type PointerOptions = { style: PointerStyle; sound: boolean };
+export type PointerOptions = {
+  style: PointerStyle;
+  sound: boolean;
+  choice: SoundChoice;
+};
 
 type PointerSurface = {
   undo: () => void;
@@ -43,7 +51,7 @@ export const createPointerSurface = ({
 
   const events = new AbortController();
   const { signal } = events;
-  const audio = new Audio(artwork.sound);
+  const audio = new Audio(artwork.sounds[initialOptions.choice]);
   const handArtwork = artwork.hands;
   const hands = new Map<keyof typeof handArtwork, HTMLImageElement>();
   const strokes: Stroke[] = [];
@@ -59,7 +67,10 @@ export const createPointerSurface = ({
   const render = (now: number): void => {
     frame = 0;
     context.clearRect(0, 0, width, height);
-    if (gesture?.drawing) drawStroke(context, gesture.stroke);
+    if (gesture?.drawing) {
+      if (gesture.stroke.erase) drawStroke(inkContext, gesture.stroke);
+      else drawStroke(context, gesture.stroke);
+    }
     if (pulse) {
       const progress = Math.min(1, (now - pulse.start) / TAP_MS);
       if (progress === 1) {
@@ -109,6 +120,7 @@ export const createPointerSurface = ({
   };
 
   const update = (next: PointerOptions): void => {
+    if (options.choice !== next.choice) audio.src = artwork.sounds[next.choice];
     options = next;
     const { style } = options;
     if (style !== "laser" && !hands.has(style)) {
@@ -148,6 +160,46 @@ export const createPointerSurface = ({
     scheduleRender();
   };
 
+  const eraseChangedInk = (stroke: Stroke): boolean => {
+    if (!strokes.length) return false;
+    // Restore the pre-gesture bitmap before comparing against the live eraser preview.
+    redrawInk();
+    let left = width,
+      right = 0,
+      top = height,
+      bottom = 0;
+    for (const point of stroke.points) {
+      left = Math.min(left, point.x);
+      right = Math.max(right, point.x);
+      top = Math.min(top, point.y);
+      bottom = Math.max(bottom, point.y);
+    }
+    const scale = ink.width / width;
+    const x = Math.max(0, Math.floor((left - 14) * scale));
+    const y = Math.max(0, Math.floor((top - 14) * scale));
+    const w = Math.min(ink.width, Math.ceil((right + 14) * scale)) - x;
+    const h = Math.min(ink.height, Math.ceil((bottom + 14) * scale)) - y;
+    if (!(w > 0 && h > 0)) return false;
+    const before = inkContext.getImageData(x, y, w, h).data;
+    drawStroke(inkContext, stroke);
+    const after = inkContext.getImageData(x, y, w, h).data;
+    for (let i = 3; i < after.length; i += 4)
+      if (before[i] !== after[i]) return true;
+    return false;
+  };
+
+  const commit = (): void => {
+    if (gesture?.drawing) {
+      if (gesture.stroke.erase && !eraseChangedInk(gesture.stroke)) {
+        endGesture();
+        return;
+      }
+      if (!gesture.stroke.erase) drawStroke(inkContext, gesture.stroke);
+      strokes.push(gesture.stroke);
+      onStrokeCountChange(strokes.length);
+    }
+    endGesture();
+  };
   const clear = (): void => {
     endGesture();
     strokes.length = 0;
@@ -159,6 +211,7 @@ export const createPointerSurface = ({
   const undo = (): void => {
     if (gesture) {
       endGesture();
+      redrawInk();
       return;
     }
     if (!strokes.pop()) return;
@@ -170,7 +223,7 @@ export const createPointerSurface = ({
     if (!gesture) return;
     const point = eventPoint(event);
     const { stroke, start } = gesture;
-    stroke.arrow = event.metaKey || event.ctrlKey;
+    stroke.arrow = !stroke.erase && (event.metaKey || event.ctrlKey);
     gesture.drawing ||= movedToDraw(start, point);
     const previous = stroke.points.at(-1);
     if (
@@ -181,12 +234,12 @@ export const createPointerSurface = ({
     }
 
     // Pointer Events can report a button release as a move when another button is held.
-    if (event.buttons & 1) return;
+    if (event.type !== "pointerup" && event.buttons & (stroke.erase ? 2 : 1))
+      return;
     pointer = event.pointerType === "touch" ? undefined : point;
     if (gesture.drawing) {
-      strokes.push(stroke);
-      drawStroke(inkContext, stroke);
-      onStrokeCountChange(strokes.length);
+      commit();
+      return;
     } else {
       pulse = {
         position: point,
@@ -206,16 +259,23 @@ export const createPointerSurface = ({
     (event) => {
       event.preventDefault();
       event.stopPropagation();
-      if (!event.isPrimary || event.button !== 0 || gesture) return;
+      if (
+        !event.isPrimary ||
+        (event.button !== 0 && event.button !== 2) ||
+        gesture
+      )
+        return;
+      surface.closest<HTMLDialogElement>("dialog")?.focus({ preventScroll: true });
       pointer = eventPoint(event);
       gesture = {
         pointerId: event.pointerId,
         start: pointer,
-        drawing: false,
+        drawing: event.button === 2,
         stroke: {
           color: pointerStyles[options.style].ink,
           points: [pointer],
-          arrow: event.metaKey || event.ctrlKey,
+          erase: event.button === 2,
+          arrow: event.button === 0 && (event.metaKey || event.ctrlKey),
         },
       };
       surface.setPointerCapture(event.pointerId);
@@ -233,6 +293,10 @@ export const createPointerSurface = ({
       )
         return;
       pointer = eventPoint(event);
+      if (gesture && event.buttons)
+        for (const sample of event.getCoalescedEvents?.() ?? []) {
+          if (sample.buttons) trackGesture(sample);
+        }
       trackGesture(event);
       scheduleRender();
     },
@@ -251,7 +315,7 @@ export const createPointerSurface = ({
   const cancelGesture = (event: PointerEvent): void => {
     if (gesture?.pointerId !== event.pointerId) return;
     pointer = undefined;
-    endGesture();
+    commit();
   };
   surface.addEventListener("pointercancel", cancelGesture, { signal });
   surface.addEventListener("lostpointercapture", cancelGesture, { signal });
@@ -266,7 +330,7 @@ export const createPointerSurface = ({
   );
 
   const updateModifier = (event: KeyboardEvent): void => {
-    if (!gesture) return;
+    if (!gesture || gesture.stroke.erase) return;
     gesture.stroke.arrow = event.metaKey || event.ctrlKey;
     scheduleRender();
   };
@@ -276,7 +340,7 @@ export const createPointerSurface = ({
     "blur",
     () => {
       pointer = undefined;
-      endGesture();
+      commit();
     },
     { signal },
   );
