@@ -38,6 +38,16 @@ test("commits slow-to-fast strokes on release, capture loss, and cancellation; e
   const paint: string[] = [];
   const ctx = {
     globalCompositeOperation: "source-over",
+    getImageData() {
+      return {
+        data: [
+          0,
+          0,
+          0,
+          this.globalCompositeOperation === "destination-out" ? 0 : 255,
+        ],
+      };
+    },
     save() {},
     restore() {},
     setTransform() {},
@@ -51,6 +61,7 @@ test("commits slow-to-fast strokes on release, capture loss, and cancellation; e
     },
   };
   const canvas = Object.assign(new EventTarget(), {
+    closest: () => null,
     getContext: () => ctx,
     clientWidth: 800,
     clientHeight: 600,
@@ -78,6 +89,9 @@ test("commits slow-to-fast strokes on release, capture loss, and cancellation; e
       }),
     );
   }
+  send("pointerdown", 100, 2, 2);
+  send("pointerup", 100, 0, 2);
+  assert.equal(count, 0);
   for (const [i, ending] of [
     "pointerup",
     "lostpointercapture",

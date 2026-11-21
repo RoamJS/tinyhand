@@ -160,10 +160,42 @@ export const createPointerSurface = ({
     scheduleRender();
   };
 
+  const eraseChangedInk = (stroke: Stroke): boolean => {
+    if (!strokes.length) return false;
+    // Restore the pre-gesture bitmap before comparing against the live eraser preview.
+    redrawInk();
+    let left = width,
+      right = 0,
+      top = height,
+      bottom = 0;
+    for (const point of stroke.points) {
+      left = Math.min(left, point.x);
+      right = Math.max(right, point.x);
+      top = Math.min(top, point.y);
+      bottom = Math.max(bottom, point.y);
+    }
+    const scale = ink.width / width;
+    const x = Math.max(0, Math.floor((left - 14) * scale));
+    const y = Math.max(0, Math.floor((top - 14) * scale));
+    const w = Math.min(ink.width, Math.ceil((right + 14) * scale)) - x;
+    const h = Math.min(ink.height, Math.ceil((bottom + 14) * scale)) - y;
+    if (!(w > 0 && h > 0)) return false;
+    const before = inkContext.getImageData(x, y, w, h).data;
+    drawStroke(inkContext, stroke);
+    const after = inkContext.getImageData(x, y, w, h).data;
+    for (let i = 3; i < after.length; i += 4)
+      if (before[i] !== after[i]) return true;
+    return false;
+  };
+
   const commit = (): void => {
     if (gesture?.drawing) {
+      if (gesture.stroke.erase && !eraseChangedInk(gesture.stroke)) {
+        endGesture();
+        return;
+      }
+      if (!gesture.stroke.erase) drawStroke(inkContext, gesture.stroke);
       strokes.push(gesture.stroke);
-      drawStroke(inkContext, gesture.stroke);
       onStrokeCountChange(strokes.length);
     }
     endGesture();
@@ -233,6 +265,7 @@ export const createPointerSurface = ({
         gesture
       )
         return;
+      surface.closest<HTMLDialogElement>("dialog")?.focus({ preventScroll: true });
       pointer = eventPoint(event);
       gesture = {
         pointerId: event.pointerId,
