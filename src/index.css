@@ -1,0 +1,143 @@
+dialog.roamjs-tinyhand {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: transparent;
+  color: inherit;
+}
+
+.roamjs-tinyhand::backdrop {
+  background: transparent;
+}
+
+.roamjs-tinyhand canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.roamjs-tinyhand canvas.roamjs-tinyhand-surface {
+  cursor: none;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.roamjs-tinyhand-controls {
+  --tinyhand-surface: #fff;
+  --tinyhand-text: #182026;
+  --tinyhand-muted: #526675;
+  --tinyhand-focus: #106ba3;
+  position: absolute;
+  inset-inline: max(8px, env(safe-area-inset-left))
+    max(8px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  margin-inline: auto;
+  width: max-content;
+  max-width: calc(
+    100% - max(8px, env(safe-area-inset-left)) -
+      max(8px, env(safe-area-inset-right))
+  );
+  max-height: calc(100% - max(12px, env(safe-area-inset-bottom)) - 8px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 7px 10px;
+  border-radius: 8px;
+  color-scheme: light;
+  color: var(--roamjs-text, var(--cdt-primary-text, var(--tinyhand-text)));
+  background: var(
+    --roamjs-surface,
+    var(
+      --cdt-popover-surface,
+      var(--background-primary, var(--tinyhand-surface))
+    )
+  );
+  box-shadow: 0 4px 20px rgb(0 0 0 / 22%);
+}
+
+:is(.bp3-dark, .roamjs-custom-dark-theme) .roamjs-tinyhand-controls,
+body:has(.roam-app.bp3-dark, .roam-body.bp3-dark) .roamjs-tinyhand-controls {
+  --tinyhand-surface: #293742;
+  --tinyhand-text: #f5f8fa;
+  --tinyhand-muted: #bbcbd6;
+  --tinyhand-focus: #8abbff;
+  color-scheme: dark;
+}
+
+.roamjs-tinyhand-actions {
+  justify-content: center;
+  gap: 2px 4px;
+}
+
+.roamjs-tinyhand-actions select {
+  color: inherit;
+}
+
+/* Some Roam themes force a page-wide minimal-button color, including in dialogs. */
+.roamjs-tinyhand
+  .roamjs-tinyhand-actions
+  .bp3-button.bp3-minimal:not(:disabled) {
+  color: inherit !important;
+}
+
+.roamjs-tinyhand-actions .bp3-html-select select {
+  background-color: var(
+    --roamjs-input,
+    var(--cdt-input-surface, var(--tinyhand-surface))
+  );
+}
+
+.roamjs-tinyhand-controls :is(button, select):focus-visible {
+  outline: 2px solid
+    var(--roamjs-focus, var(--cdt-accent, var(--tinyhand-focus)));
+  outline-offset: 1px;
+}
+
+.roamjs-tinyhand .roamjs-tinyhand-help {
+  margin: 5px 0 0;
+  color: var(--roamjs-muted, var(--cdt-secondary-text, var(--tinyhand-muted)));
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.roamjs-tinyhand-help span {
+  white-space: nowrap;
+}
+
+.roamjs-tinyhand-help kbd {
+  font-family: inherit;
+  font-weight: 600;
+}
+
+@media (max-width: 360px) {
+  .roamjs-tinyhand-controls {
+    padding-inline: 5px;
+  }
+
+  .roamjs-tinyhand-actions {
+    column-gap: 2px;
+  }
+
+  .roamjs-tinyhand-actions .bp3-button {
+    padding-inline: 5px;
+  }
+}
+
+@media (pointer: coarse) {
+  .roamjs-tinyhand-actions :is(button, select) {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}

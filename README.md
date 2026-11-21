@@ -1,43 +1,59 @@
-# RoamJS Extension Base
+# TinyHand for Roam
 
-Stock base for [RoamJS](https://roamjs.com) Roam Research extensions. Choose **Use this template** to create a standalone repository, then clone the new repository. See the [RoamJS extension creation guide](https://github.com/mdroidian/RoamJS/blob/main/docs/creating-roamjs-extensions.md) for setup and the clone-and-push fallback.
+<a href="https://roamjs.com/">
+  <img src="https://avatars.githubusercontent.com/u/138642184" alt="RoamJS" align="right" height="60" />
+</a>
 
-## What's included
+**Point at anything in your Roam tab with a tiny hand on a stick, and draw over the page while you present.**
 
-- **roamjs-components** — shared utilities, DOM helpers, queries, writes, and UI components
-- **Samepage build** — `samepage build` produces the Roam Depot–ready bundle
-- **Settings panel** — example `extensionAPI.settings.panel.create` with an Enable switch
-- **TypeScript** — tsconfig extending `@samepage/scripts`
-- **CI** — GitHub Actions to build on push/PR (uses RoamJS secrets for publish)
+[![RoamJS](https://roamjs.com/badges/website.svg)](https://roamjs.com/) [![Slack](https://roamjs.com/badges/slack.svg)](https://roamresearch.slack.com/archives/C016N2B66JU)
 
-## After creating the repository
+## Use TinyHand
 
-1. **Set the package metadata** in `package.json`:
-   - `name`: your extension slug (e.g. `my-extension`)
-   - `description`: one line describing the extension
+1. Open Roam’s command palette and select **TinyHand: Start pointing**. You can assign it a shortcut in Roam’s Hotkeys settings.
+2. Move your pointer to aim. Click to tap, or drag to draw. Hold **Cmd** on macOS or **Ctrl** on Windows and Linux while dragging to add an arrowhead.
+3. Choose a hand or the laser dot in the bottom toolbar. Tap sound starts muted. Roam remembers your pointer and sound choices in this browser.
+4. Use **Undo** or **Cmd/Ctrl+Z** to remove the last mark. Choose **Clear** to erase all the ink and keep pointing.
+5. Press **Escape** or choose **Exit** to remove the overlay and return to editing.
 
-2. **Implement in `src/index.ts`**:
-   - Keep or replace the settings panel
-   - Add your logic using `roamjs-components` (e.g. `createHTMLObserver`, `createBlock`, `renderToast`)
-   - Return `{ unload }` to clean up on unload
+While pointing, you can tap a link or underline a block without opening it. Exit pointing mode to follow a link, scroll the page, or edit. Ink stays in the tab until you undo it, clear it, or exit. Each new presentation starts with a blank overlay.
 
-3. **Update all instances of `{Extension Name}` to the name of the extension.**
+## Load a development build
 
-### Write the extension README
+Run `npm ci` and `npm run build:roam`, then load the `dist` folder in Roam’s Developer Extensions. Run `npm test` and `npm run typecheck` locally with Node.js 24.
 
-Replace this starter README with a user-facing README based on [README-TEMPLATE.md](README-TEMPLATE.md). Fill in the actual repository links and describe the extension’s features. Keep build instructions with the extension's developer documentation.
+## Credit
 
-3. **Prefer**: Add React components under `src/components/` (see [autocomplete](https://github.com/RoamJS/autocomplete), [giphy](https://github.com/RoamJS/giphy) for examples).
+TinyHand for Roam is based on [TinyHand for macOS](https://github.com/nilbuild/tinyhand) by Kamran Ahmed (nilbuild). This port reuses adapted versions of the original Lavender toy, Cursor glove, Coral vinyl, Plush, and Robot artwork, plus its Pop tap sound. These assets are distributed under the [MIT license](https://github.com/nilbuild/tinyhand/blob/da98f98d529971297487b0ec6ef07dc549555686/LICENSE) and come from [upstream commit da98f98](https://github.com/nilbuild/tinyhand/tree/da98f98d529971297487b0ec6ef07dc549555686/assets).
 
-4. **Secrets (for publish)** — in the new repository, configure:
-   - `ROAMJS_RELEASE_TOKEN`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
-   - `AWS_REGION`, `ROAMJS_PROXY` (vars)
+This extension also includes code from [roamjs-components](https://github.com/RoamJS/roamjs-components), copyright (c) 2021 David Vargas, under the same MIT license.
 
-## Scripts
+<details>
+<summary>MIT license and copyright notice</summary>
 
-- `npm start` — samepage dev (local development)
-- `npm run build:roam` — build for Roam (dry run; CI runs `npx samepage build`)
+```text
+MIT License
 
-## License
+Copyright (c) RoamJS
+Copyright (c) 2026 Kamran Ahmed
 
-MIT
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+</details>

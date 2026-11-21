@@ -1,16 +1,20 @@
 {
-  "name": "extension-base",
-  "version": "1.0.0",
-  "description": "Stock RoamJS Roam Research Extension base — fork this repo to start new extensions.",
-  "main": "index.js",
+  "name": "tinyhand",
+  "version": "0.1.0",
+  "description": "Point, tap, and draw over your Roam graph with TinyHand.",
+  "main": "extension.js",
   "scripts": {
     "postinstall": "patch-package",
     "start": "samepage dev",
-    "prebuild:roam": "npm install",
     "build:roam": "samepage build --dry",
-    "test": "samepage test"
+    "test": "node --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": ["roam", "roam-research", "roamjs"],
+  "keywords": [
+    "roam",
+    "roam-research",
+    "roamjs"
+  ],
   "license": "MIT",
   "dependencies": {
     "roamjs-components": "^0.91.0"
@@ -20,6 +24,12 @@
     "prettier-plugin-tailwindcss": "^0.6.11"
   },
   "samepage": {
-    "extends": "node_modules/roamjs-components/package.json"
+    "extends": "node_modules/roamjs-components/package.json",
+    "include": [
+      "README.md",
+      "package.json",
+      "CHANGELOG.md",
+      "LICENSE"
+    ]
   }
 }

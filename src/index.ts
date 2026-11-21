@@ -1,39 +1,62 @@
+import React from "react";
+import ReactDOM from "react-dom";
+import renderToast from "roamjs-components/components/Toast";
 import runExtension from "roamjs-components/util/runExtension";
-import { render as renderToast } from "roamjs-components/components/Toast";
+import { TinyHand } from "~/components/TinyHand";
+import { createPreferences } from "~/preferences";
+
+const COMMAND = "TinyHand: Start pointing";
 
 export default runExtension(async ({ extensionAPI }) => {
-  if (process.env.NODE_ENV === "development") {
-    renderToast({
-      id: "extension-base-loaded",
-      content: "Successfully loaded {Extension Name}",
-      intent: "success",
-      timeout: 500,
-    });
-  }
+  let mount: HTMLDivElement | undefined;
+  let active = true;
+  const preferences = createPreferences();
 
-  // extensionAPI.settings.panel.create({
-  //   tabTitle: "Extension",
-  //   settings: [
-  //     {
-  //       id: "enabled",
-  //       name: "Enable",
-  //       description: "Turn the extension on or off",
-  //       action: { type: "switch" },
-  //     },
-  //   ],
-  // });
+  const close = (): void => {
+    if (!mount) return;
+    ReactDOM.unmountComponentAtNode(mount);
+    mount.remove();
+    mount = undefined;
+  };
 
-  // Add your extension logic here.
-  // Add components to /components
-  // Add utils to /utils
-  // Add types to /types
-  // Add styles to /styles
-  // keep index.ts simple, clean, easy to read and focused on the extension logic.
-  // Use roamjs-components: dom/*, queries/*, writes/*, util/*, components/*
+  const open = (): void => {
+    if (!active || mount) return;
+    mount = document.createElement("div");
+    document.body.append(mount);
+    ReactDOM.render(
+      React.createElement(TinyHand, {
+        initialStyle: preferences.style,
+        initialSound: preferences.sound,
+        onStyleChange: preferences.setStyle,
+        onSoundChange: preferences.setSound,
+        onClose: close,
+      }),
+      mount,
+    );
+  };
 
+  const registerCommand = async (): Promise<void> => {
+    try {
+      await extensionAPI.ui.commandPalette.addCommand({
+        label: COMMAND,
+        callback: open,
+      });
+    } catch (error) {
+      if (!active) return;
+      console.error("TinyHand could not register its pointing command.", error);
+      renderToast({
+        id: "tinyhand-registration-error",
+        content:
+          "TinyHand could not add its command. Reload Roam to try again.",
+        intent: "danger",
+      });
+    }
+  };
+  void registerCommand();
   return {
     unload: () => {
-      // Clean up observers, listeners, command palette, etc.
+      active = false;
+      close();
     },
   };
 });
