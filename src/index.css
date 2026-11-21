@@ -141,3 +141,61 @@ body:has(.roam-app.bp3-dark, .roam-body.bp3-dark) .roamjs-tinyhand-controls {
     min-height: 40px;
   }
 }
+
+.roamjs-tinyhand-style {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 3px;
+}
+.roamjs-tinyhand-style[aria-pressed="true"] {
+  background: var(--roamjs-selected, rgba(125, 93, 217, 0.16));
+  border-color: var(--roamjs-focus, var(--tinyhand-focus));
+}
+.roamjs-tinyhand-style:hover {
+  background: var(--roamjs-hover, rgba(120, 120, 120, 0.17));
+}
+.roamjs-tinyhand-style img {
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+.roamjs-tinyhand-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ed3029;
+}
+.roamjs-tinyhand-sounds {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+
+dialog.roamjs-tinyhand {
+  z-index: 19;
+  pointer-events: none;
+  outline: 0;
+}
+.roamjs-tinyhand-controls {
+  pointer-events: auto;
+}
+.roamjs-tinyhand-pass canvas.roamjs-tinyhand-surface {
+  pointer-events: none;
+}
+.roamjs-tinyhand-controls[hidden] {
+  display: none;
+}
+
+/* Let Roam receive clicks in its palette even when the overlay covers the page. */
+body:has(.rm-command-palette) dialog.roamjs-tinyhand {
+  visibility: hidden;
+}

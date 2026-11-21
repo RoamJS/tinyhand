@@ -44,3 +44,15 @@ test("keeps pointing and sound available when browser storage is blocked", () =>
   assert.equal(preferences.style, "plush");
   assert.equal(preferences.sound, true);
 });
+
+test("restores the sound choice separately from mute and falls back to Pop for older installs", () => {
+  const store = memoryStorage();
+  store.setItem("roamjs:tinyhand:tap-sound", "true");
+  const prefs = createPreferences(() => store);
+  assert.equal(prefs.choice, "pop");
+  prefs.setChoice("quack");
+  prefs.setSound(false);
+  const next = createPreferences(() => store);
+  assert.equal(next.choice, "quack");
+  assert.equal(next.sound, false);
+});
