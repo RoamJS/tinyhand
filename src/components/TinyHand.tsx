@@ -32,6 +32,7 @@ export const TinyHand = ({
   onClose,
 }: Props): React.ReactElement => {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
   const inkRef = useRef<HTMLCanvasElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const selectRef = useRef<HTMLButtonElement>(null);
@@ -124,6 +125,15 @@ export const TinyHand = ({
     drawingRef.current?.update({ style, sound, choice });
   }, [style, sound, choice]);
 
+  useLayoutEffect(() => {
+    const toolbar = toolbarRef.current;
+    if (!toolbar) return;
+    if (!toolbarVisible && toolbar.contains(document.activeElement)) {
+      dialogRef.current?.focus({ preventScroll: true });
+    }
+    toolbar.hidden = !toolbarVisible;
+  }, [toolbarVisible]);
+
   return (
     <dialog
       ref={dialogRef}
@@ -138,7 +148,7 @@ export const TinyHand = ({
         className="roamjs-tinyhand-surface"
         aria-hidden="true"
       />
-      <div className="roamjs-tinyhand-controls" hidden={!toolbarVisible}>
+      <div className="roamjs-tinyhand-controls" ref={toolbarRef}>
         <div
           className="roamjs-tinyhand-actions flex flex-wrap items-center"
           role="group"
