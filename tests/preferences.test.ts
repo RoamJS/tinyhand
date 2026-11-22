@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createPreferences } from "../src/preferences.ts";
+import { createPreferences, pointerStyles } from "../src/preferences.ts";
 
 const memoryStorage = () => {
   const values = new Map<string, string>();
@@ -13,7 +13,8 @@ const memoryStorage = () => {
 test("starts with a muted hand and restores only the presenter's choices on reload", () => {
   const store = memoryStorage();
   const preferences = createPreferences(() => store);
-  assert.equal(preferences.style, "lavender");
+  assert.equal(preferences.style, "glove");
+  assert.equal(pointerStyles.glove.ink, "#eab308");
   assert.equal(preferences.sound, false);
   preferences.setStyle("laser");
   preferences.setSound(true);
@@ -30,7 +31,7 @@ test("ignores unknown styles, inherited property names, and invalid sound settin
       getItem: () => value,
       setItem: () => {},
     }));
-    assert.equal(preferences.style, "lavender");
+    assert.equal(preferences.style, "glove");
     assert.equal(preferences.sound, false);
   }
 });

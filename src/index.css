@@ -99,26 +99,41 @@ body:has(.roam-app.bp3-dark, .roam-body.bp3-dark) .roamjs-tinyhand-controls {
 
 .roamjs-tinyhand-controls :is(button, select):focus-visible {
   outline: 2px solid
-    var(--roamjs-focus, var(--cdt-accent, var(--tinyhand-focus)));
+    var(--roamjs-focus, var(--cdt-accent, var(--tinyhand-focus))) !important;
   outline-offset: 1px;
 }
 
-.roamjs-tinyhand .roamjs-tinyhand-help {
-  margin: 5px 0 0;
-  color: var(--roamjs-muted, var(--cdt-secondary-text, var(--tinyhand-muted)));
-  font-size: 12px;
-  line-height: 1.5;
-  text-align: center;
-  text-wrap: balance;
+.roamjs-tinyhand-guide {
+  pointer-events: auto;
+  padding: 12px 16px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100vh - 72px);
+  overflow: auto;
 }
-
-.roamjs-tinyhand-help span {
-  white-space: nowrap;
-}
-
-.roamjs-tinyhand-help kbd {
-  font-family: inherit;
+.roamjs-tinyhand-guide h2 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 20px;
   font-weight: 600;
+}
+.roamjs-tinyhand-guide dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 5px 18px;
+  font-size: 14px;
+  line-height: 20px;
+  margin: 0;
+}
+.roamjs-tinyhand-guide dt {
+  font-weight: normal;
+}
+.roamjs-tinyhand-guide dd {
+  margin: 0;
+  text-align: right;
+  opacity: 0.8;
+}
+.roamjs-tinyhand-lavender {
+  transform: translateX(-4px);
 }
 
 @media (max-width: 360px) {

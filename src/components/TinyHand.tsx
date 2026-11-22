@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { Button, HTMLSelect } from "@blueprintjs/core";
+import { Button, HTMLSelect, Popover } from "@blueprintjs/core";
 import {
   pointerStyles,
   type PointerStyle,
@@ -36,6 +36,7 @@ export const TinyHand = ({
   const inkRef = useRef<HTMLCanvasElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const selectRef = useRef<HTMLButtonElement>(null);
+  const helpRef = useRef<HTMLButtonElement>(null);
   const drawingRef = useRef<ReturnType<typeof createPointerSurface>>();
   const [style, setStyle] = useState(initialStyle);
   const [sound, setSound] = useState(initialSound);
@@ -80,7 +81,15 @@ export const TinyHand = ({
     const keyboard = (event: KeyboardEvent): void => {
       setPassThrough(event.altKey);
       if (event.type !== "keydown" || event.key !== "Escape") return;
-      if (document.querySelector(".bp3-overlay-open, .rm-command-palette"))
+      if (document.querySelector(".rm-command-palette")) return;
+      if (helpRef.current?.getAttribute("aria-expanded") === "true") {
+        event.preventDefault();
+        event.stopPropagation();
+        setPanel(null);
+        helpRef.current.focus({ preventScroll: true });
+        return;
+      }
+      if (document.querySelector(".bp3-overlay-open:not(.bp3-toast-container)"))
         return;
       event.preventDefault();
       event.stopPropagation();
@@ -128,6 +137,7 @@ export const TinyHand = ({
   useLayoutEffect(() => {
     const toolbar = toolbarRef.current;
     if (!toolbar) return;
+    if (!toolbarVisible) setPanel(null);
     if (!toolbarVisible && toolbar.contains(document.activeElement)) {
       dialogRef.current?.focus({ preventScroll: true });
     }
@@ -172,7 +182,13 @@ export const TinyHand = ({
               {id === "laser" ? (
                 <span className="roamjs-tinyhand-dot" />
               ) : (
-                <img alt="" src={artwork.hands[id].image} />
+                <img
+                  alt=""
+                  className={
+                    id === "lavender" ? "roamjs-tinyhand-lavender" : undefined
+                  }
+                  src={artwork.hands[id].image}
+                />
               )}
             </button>
           ))}
@@ -203,14 +219,61 @@ export const TinyHand = ({
             disabled={strokeCount === 0}
             onClick={() => drawingRef.current?.clear()}
           />
-          <Button
-            minimal
-            icon="help"
-            title="Gesture guide"
-            aria-label="Gesture guide"
-            aria-expanded={panel === "help"}
-            onClick={() => setPanel(panel === "help" ? null : "help")}
-          />
+          <Popover
+            placement="top-end"
+            modifiers={{
+              flip: { enabled: false },
+              preventOverflow: { boundariesElement: "viewport", padding: 8 },
+            }}
+            portalContainer={dialogRef.current ?? undefined}
+            isOpen={toolbarVisible && panel === "help"}
+            onInteraction={(open) =>
+              setPanel((current) =>
+                open ? "help" : current === "help" ? null : current,
+              )
+            }
+            autoFocus={false}
+            enforceFocus={false}
+            content={
+              <section
+                id="roamjs-tinyhand-help"
+                className="roamjs-tinyhand-guide"
+                aria-label="Gesture guide"
+              >
+                <h2>Gesture guide</h2>
+                <dl>
+                  {[
+                    ["Tap", "Click"],
+                    ["Draw", "Drag"],
+                    ["Draw an arrow", modifier + " + drag"],
+                    ["Erase ink", "Right-drag"],
+                    [
+                      "Interact with Roam",
+                      (modifier === "Cmd" ? "Option" : "Alt") + " + click",
+                    ],
+                    ["Exit pointing", "Esc"],
+                  ].map(([action, gesture]) => (
+                    <React.Fragment key={action}>
+                      <dt>{action}</dt>
+                      <dd>{gesture}</dd>
+                    </React.Fragment>
+                  ))}
+                </dl>
+              </section>
+            }
+          >
+            <Button
+              minimal
+              elementRef={helpRef}
+              icon="help"
+              title="Gesture guide"
+              aria-label="Gesture guide"
+              aria-expanded={panel === "help"}
+              aria-controls={
+                panel === "help" ? "roamjs-tinyhand-help" : undefined
+              }
+            />
+          </Popover>
           <Button
             minimal
             text="Exit"
@@ -243,18 +306,6 @@ export const TinyHand = ({
               }}
             />
           </label>
-        )}
-        {panel === "help" && (
-          <p id="roamjs-tinyhand-help" className="roamjs-tinyhand-help">
-            <span>Click to tap.</span> <span>Drag to draw.</span>{" "}
-            <span>
-              <kbd>{modifier}</kbd> + drag for an arrow.
-            </span>{" "}
-            <span>
-              Right-drag to erase. Alt-click to interact with Roam.{" "}
-              <kbd>Esc</kbd> to exit.
-            </span>
-          </p>
         )}
       </div>
     </dialog>
