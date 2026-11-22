@@ -1,9 +1,9 @@
 export const pointerStyles = {
   lavender: { label: "Lavender toy", ink: "#8054ee" },
-  glove: { label: "Cursor glove", ink: "#8054ee" },
+  glove: { label: "White glove", ink: "#eab308" },
   coral: { label: "Coral vinyl", ink: "#e64c53" },
   plush: { label: "Plush", ink: "#287bd9" },
-  robot: { label: "Robot", ink: "#138464" },
+  robot: { label: "Black hand", ink: "#22272b" },
   laser: { label: "Laser dot", ink: "#ed3029" },
 };
 
@@ -51,7 +51,7 @@ export const createPreferences = (
     }
   };
   const preferences: Preferences = {
-    style: "lavender",
+    style: "glove",
     sound: false,
     choice: "pop",
     setChoice: (choice) => {
