@@ -1,6 +1,6 @@
 export const pointerStyles = {
-  lavender: { label: "Lavender toy", ink: "#8054ee" },
   glove: { label: "White glove", ink: "#eab308" },
+  lavender: { label: "Lavender toy", ink: "#8054ee" },
   coral: { label: "Coral vinyl", ink: "#e64c53" },
   plush: { label: "Plush", ink: "#287bd9" },
   robot: { label: "Black hand", ink: "#22272b" },

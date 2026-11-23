@@ -10,6 +10,10 @@ const memoryStorage = () => {
   };
 };
 
+test("lists the white glove first in the toolbar", () => {
+  assert.equal(Object.keys(pointerStyles)[0], "glove");
+});
+
 test("starts with a muted hand and restores only the presenter's choices on reload", () => {
   const store = memoryStorage();
   const preferences = createPreferences(() => store);
