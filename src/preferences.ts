@@ -52,8 +52,8 @@ export const createPreferences = (
   };
   const preferences: Preferences = {
     style: "glove",
-    sound: false,
-    choice: "pop",
+    sound: true,
+    choice: "thock",
     setChoice: (choice) => {
       preferences.choice = choice;
       save("roamjs:tinyhand:sound-choice", choice);
@@ -73,10 +73,15 @@ export const createPreferences = (
     if (style && Object.hasOwn(pointerStyles, style)) {
       preferences.style = style as PointerStyle;
     }
+    const savedSound = store.getItem(soundKey);
+    if (savedSound !== null) {
+      preferences.sound = savedSound === "true";
+      // Older installs stored only the mute setting and played Pop.
+      preferences.choice = "pop";
+    }
     const choice = store.getItem("roamjs:tinyhand:sound-choice");
     if (choice && Object.hasOwn(soundNames, choice))
       preferences.choice = choice as SoundChoice;
-    preferences.sound = store.getItem(soundKey) === "true";
   } catch {
     // Storage can be unavailable before the presenter has chosen any settings.
   }

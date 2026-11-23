@@ -14,7 +14,7 @@ Open Roam’s command palette and select **TinyHand: Toggle pointing**. Run it a
 
 - **Point and tap.** Start with the white glove and yellow ink, or choose another hand or the laser dot. Move your pointer to aim and click to highlight a spot.
 - **Draw and add arrows.** Drag to draw. Hold **Cmd** on macOS or **Ctrl** on Windows and Linux while dragging to add an arrowhead. Open **Gesture guide** for a shortcut popover. Press **Escape** to dismiss the guide and keep pointing.
-- **Choose a tap sound.** Use the speaker control to select one of 15 original sounds or **Off** (the default). TinyHand remembers your pointer and sound choices in this browser.
+- **Choose a tap sound.** Taps play **Thock** by default. Use the speaker control to choose from 15 sounds or turn sound **Off**. TinyHand remembers your pointer and sound choices in this browser.
 - **Correct a mark.** Use **Undo** or **Cmd/Ctrl+Z** to remove the last mark. Choose **Clear** to erase all the ink and keep pointing.
 - **Return to Roam.** Press **Escape** or choose **Exit** to clear the overlay and resume opening links, scrolling, and editing.
 

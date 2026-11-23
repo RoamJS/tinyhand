@@ -14,12 +14,13 @@ test("lists the white glove first in the toolbar", () => {
   assert.equal(Object.keys(pointerStyles)[0], "glove");
 });
 
-test("starts with a muted hand and restores only the presenter's choices on reload", () => {
+test("starts with Thock enabled and restores only the presenter's choices on reload", () => {
   const store = memoryStorage();
   const preferences = createPreferences(() => store);
   assert.equal(preferences.style, "glove");
   assert.equal(pointerStyles.glove.ink, "#eab308");
-  assert.equal(preferences.sound, false);
+  assert.equal(preferences.sound, true);
+  assert.equal(preferences.choice, "thock");
   preferences.setStyle("laser");
   preferences.setSound(true);
   const reopened = createPreferences(() => store);

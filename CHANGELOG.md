@@ -2,7 +2,7 @@
 
 ## 0.1.0
 
-- The white glove appears first in the toolbar and starts with yellow ink. A black hand replaces the green robot, the lavender icon is centered, and Gesture guide opens above the toolbar.
+- The white glove appears first in the toolbar and starts with yellow ink. New installs play Thock on tap. A black hand replaces the green robot, the lavender icon is centered, and Gesture guide opens above the toolbar.
 
 - Added TinyHand for Roam. Point with a hand or laser dot, tap to highlight a spot, and draw freehand strokes and arrows over your graph.
 - Undo one mark with the toolbar or **Cmd/Ctrl+Z**, clear all ink, and press **Escape** to return to the graph.
